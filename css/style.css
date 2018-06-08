@@ -1,0 +1,102 @@
+body {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+#box {
+    display: flex;
+}
+
+#main {
+    flex: 0 0 auto;
+    width: 300px;
+    order: 1;
+    border-left: 1px solid black;
+    background: #191919;
+}
+
+.hide {
+    display: none;
+    visibility: hidden;
+}
+
+#main ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#main ul li {
+    display: block;
+    margin: 0;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    margin: 0;
+    background-color: grey;
+    cursor: pointer;
+    border-bottom: 2px solid #191919;
+}
+
+#main ul li.active {
+    background-color: yellow;
+}
+
+#main .filter {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0 1rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 1rem;
+    border: none;
+}
+
+#main label {
+    display: block;
+    width: 90%;
+    margin: 0 auto;
+    font-size: 1rem;
+}
+
+#map-container {
+    flex: 1 1 auto;
+    height: 100vh;
+    position: relative;
+}
+
+#map {
+    height: 100%;
+}
+
+.toggle-nav {
+    position: absolute;
+    z-index: 999;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.5rem;
+}
+
+@-webkit-keyframes rotation {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 600px) {
+    .facet_sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .facet_sidebar {
+        display: none;
+    }
+}
