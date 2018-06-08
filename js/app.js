@@ -48,61 +48,59 @@ var place = function(location) {
         }
 
         var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + self.name() + '&format=json&callback=wikiCallback';
+        // create marker for this location object on object contruction
+        self.createMarker = (function() {
 
-        $.ajax({
-                url: wikiUrl,
-                dataType: 'jsonp',
-            })
-            .done(function(response) {
-                var wikiContent = '';
-                if (response) {
-                    if (typeof response[1] !== "undefined" && typeof response[3] !== "undefined") {
-                        for (var i = 0; i < 3; i++) {
-                            if (typeof response[1][i] !== "undefined" && typeof response[3][i] !== "undefined") {
-                                wikiContent += '<a href="' + response[3][i] + '" target"_blank">' + response[1][i] + '</a><br>';
-                            }
+            // create marker for this location
+            self.marker = new google.maps.Marker({
+                position: { lat: self.lat(), lng: self.lng() },
+                map: map,
+                title: self.name()
+            });
+
+            // extend map bounds with this new marker
+            map.bounds.extend(self.marker.position);
+
+            // add click event listener to marker
+            self.marker.addListener('click', function() {
+                selectLocation(self);
+            });
+
+        })();
+    };
+    $.ajax({
+            url: wikiUrl,
+            dataType: 'jsonp',
+        })
+        .done(function(response) {
+            var wikiContent = '';
+            if (response) {
+                if (typeof response[1] !== "undefined" && typeof response[3] !== "undefined") {
+                    for (var i = 0; i < 3; i++) {
+                        if (typeof response[1][i] !== "undefined" && typeof response[3][i] !== "undefined") {
+                            wikiContent += '<a href="' + response[3][i] + '" target"_blank">' + response[1][i] + '</a><br>';
                         }
                     }
                 }
-                if (wikiContent !== '') {
-                    self.content = ko.observable('<h4>Wikipedia results for "' + self.name() + '"</h4><p>' + wikiContent + '</p>');
-                } else {
-                    self.content = ko.observable('<h4>Wikipedia results for "' + self.name() + '"</h4><p>There was a problem reaching wikipedia, sorry =/</p>');
-                }
-            })
-            .fail(function() {
-                console.log("error in ajax call to wikipedia's api");
+            }
+            if (wikiContent !== '') {
+                self.content = ko.observable('<h4>Wikipedia results for "' + self.name() + '"</h4><p>' + wikiContent + '</p>');
+            } else {
                 self.content = ko.observable('<h4>Wikipedia results for "' + self.name() + '"</h4><p>There was a problem reaching wikipedia, sorry =/</p>');
-            })
-            .always(function() {
-                if (typeof callback !== "undefined") {
-                    callback(self);
-                }
-            });
-
-        // return a spinner for while the external API is still loading
-        return '<h4>Wikipedia results for "' + self.name() + '"</h4><p><span class="spinner"></span></p>';
-    };
-
-    // create marker for this location object on object contruction
-    self.createMarker = (function() {
-
-        // create marker for this location
-        self.marker = new google.maps.Marker({
-            position: { lat: self.lat(), lng: self.lng() },
-            map: map,
-            title: self.name()
+            }
+        })
+        .fail(function() {
+            console.log("error in ajax call to wikipedia's api");
+            self.content = ko.observable('<h4>Wikipedia results for "' + self.name() + '"</h4><p>There was a problem reaching wikipedia, sorry =/</p>');
+        })
+        .always(function() {
+            if (typeof callback !== "undefined") {
+                callback(self);
+            }
         });
 
-        // extend map bounds with this new marker
-        map.bounds.extend(self.marker.position);
-
-        // add click event listener to marker
-        self.marker.addListener('click', function() {
-            selectLocation(self);
-        });
-
-    })();
+    // return a spinner for while the external API is still loading
+    return '<h4>Wikipedia results for "' + self.name() + '"</h4><p><span class="spinner"></span></p>';
 };
 
 // Google Maps
@@ -119,7 +117,7 @@ function initMap() {
     });
 
     google.maps.event.addListener(infoWindow, 'closeclick', function() {
-        resetActiveState();
+        reload();
     });
 
     // add eventlistener to resize map when the browser resizes
@@ -152,7 +150,7 @@ var ViewModel = function() {
     this.searchTerm = ko.observable('');
 
     // this function is used to reset any active state that may be set
-    this.resetActiveState = function() {
+    this.reload = function() {
         self.currentLocation().active(false);
         self.currentLocation().marker.setAnimation(null);
         infoWindow.close();
@@ -161,7 +159,7 @@ var ViewModel = function() {
     // compute the list of locations filtered by the searchTerm
     this.filteredLocations = ko.computed(function() {
         // reset any active state
-        resetActiveState();
+        reload();
 
         // return a list of locations filtered by the searchTerm
         return self.locationsList().filter(function(location) {
@@ -185,12 +183,12 @@ var ViewModel = function() {
     // click handler for when a location is clicked
     this.selectLocation = function(clickedLocation) {
         if (self.currentLocation() == clickedLocation && self.currentLocation().active() === true) {
-            resetActiveState();
+            reload();
             return;
         }
 
         // reset any active state
-        resetActiveState();
+        reload();
 
         // update currentLocation
         self.currentLocation(clickedLocation);
@@ -236,5 +234,5 @@ var app = function() {
 // Fallback for Google Maps Api
 function googleMapsApiErrorHandler() {
     console.log('Error: Google maps API has not loaded');
-    $('body').prepend('<p id="map-error">Sorry we are having trouble loading google maps API, please try again in a moment.</p>');
+    $('body').prepend('<p id="map-error">Sorry maps cannot be reach, please try again in a moment.</p>');
 }
