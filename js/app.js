@@ -23,6 +23,18 @@ var locations = [{
         lng: 73.0184
     },
     {
+        name: 'Hawa Mahal',
+        address: 'Rajasthan 302002 ',
+        lat: 26.9239,
+        lng: 75.8267
+    },
+    {
+        name: 'Jaisalmer Fort',
+        address: 'Sadri, Rajasthan 306702 ',
+        lat: 26.9128,
+        lng: 70.9131
+    },
+    {
         name: 'The Golden Temple',
         address: 'Punjab 143006',
         lat: 31.6200,
